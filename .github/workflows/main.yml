@@ -26,9 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install feedparser firebase-admin requests beautifulsoup4
 
-      - name: Run bot
+     - name: Run bot
         env:
-          # Firebase servis hesabın için anahtarı buraya eklemelisin
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           python bot.py
