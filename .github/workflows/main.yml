@@ -17,6 +17,6 @@ jobs:
       - name: Install dependencies
         run: pip install feedparser firebase-admin requests beautifulsoup4
       - name: Create JSON file
-        run: echo "${{ secrets.FIREBASE_CREDENTIALS }}" > serviceAccountKey.json
+        run: printf '%s' '${{ secrets.FIREBASE_CREDENTIALS }}' > serviceAccountKey.json
       - name: Run bot
         run: python bot.py
