@@ -29,8 +29,19 @@ def get_og_image(url):
 def haberleri_kaydet(sorgu, dil="tr", ulke="TR"):
     print(f"\n--- {sorgu.upper()} ({ulke}-{dil}) taranıyor ---")
     rss_url = f"https://news.google.com/rss/search?q={sorgu}&hl={dil}&gl={ulke}&ceid={ulke}:{dil}"
+    
+    # RSS linkini loglara yazdır ki bozuk mu değil mi görelim
+    print(f"DEBUG: RSS URL: {rss_url}")
+    
     besleme = feedparser.parse(rss_url)
     
+    # Haber gelip gelmediğini logla
+    print(f"DEBUG: Bulunan haber sayısı: {len(besleme.entries)}")
+    
+    if len(besleme.entries) == 0:
+        print("UYARI: Google News bu sorgu için boş döndü!")
+    
+    for haber in besleme.entries:    
     # Tüm haberleri çekmek için döngüyü sınırsız yaptık
     for haber in besleme.entries:
         # MD5 ile benzersiz ID oluştur (Tekilleştirme)
