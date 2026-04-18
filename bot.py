@@ -1,15 +1,19 @@
+import os
+import json
 import feedparser
-import firebase_admin
-from firebase_admin import credentials, firestore
-import requests
 from bs4 import BeautifulSoup
-import hashlib
+import firebase_admin
+from firebase_admin import credentials, initialize_app, firestore
 
-# Firebase Bağlantısı
-if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
+# --- GÜVENLİ BAĞLANTI BAŞLANGICI ---
+# GitHub'daki Secret alanından gelen veriyi JSON olarak okur
+service_account_info = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
+cred = credentials.Certificate(service_account_info)
+initialize_app(cred)
 db = firestore.client()
+# --- GÜVENLİ BAĞLANTI BİTİŞİ ---
+
+# Artık geri kalan kodların (haberleri çekme, döngü vs.) kaldığı yerden devam edebilir
 
 def get_og_image(url):
     """Haberin orijinal görselini linke gidip bulur."""
