@@ -4,10 +4,10 @@ on:
   push:
     branches: [ master ]
   schedule:
-    - cron: '*/30 * * * *' # Her 30 dakikada bir çalışır
+    - cron: '*/30 * * * *'
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Node.js 24 uyarısını susturur
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install feedparser firebase-admin requests beautifulsoup4
 
-     - name: Run bot
+      - name: Run bot
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
