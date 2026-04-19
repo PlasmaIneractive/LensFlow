@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from firebase_admin import credentials, initialize_app, firestore
 
 # Firebase Bağlantısı
+# GitHub Secrets içindeki FIREBASE_SERVICE_ACCOUNT değişkenini kullanır
 service_account = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
 cred = credentials.Certificate(service_account)
 initialize_app(cred)
@@ -33,16 +34,14 @@ def haberleri_islet():
         feed = feedparser.parse(url)
         
         for entry in feed.entries:
-            # Başlığı temizle: Slash ve diğer geçersiz karakterleri '-' ile değiştir
-temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
-doc_ref = db.collection('haberler').document(temiz_baslik)
+            # Başlıkta Firebase'i bozan karakterleri temizle
+            temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
+            doc_ref = db.collection('haberler').document(temiz_baslik)
             
-            # ... bot.py içindeki haberleri_islet fonksiyonunun içindeki veri bloğunu şöyle güncelle:
-
             if not doc_ref.get().exists:
                 gorsel = gorsel_bul(entry.link)
                 
-                # URL üzerinden kategoriyi tahmin etme (Default: 'Gündem')
+                # URL üzerinden kategoriyi al
                 kategori = "Gündem"
                 if "/topic/" in url:
                     kategori = url.split("/topic/")[1].split("?")[0]
@@ -53,9 +52,10 @@ doc_ref = db.collection('haberler').document(temiz_baslik)
                     "gorsel": gorsel if gorsel else "https://via.placeholder.com/600x400",
                     "tarih": firestore.SERVER_TIMESTAMP,
                     "dil": dil,
-                    "kategori": kategori,  # <--- Yeni alanımız
-                    "kaynak": entry.source.get('title', 'Google News')
+                    "kategori": kategori,
+                    "kaynak": entry.source.get('title', 'Google News') if 'source' in entry else 'Google News'
                 }
+                
                 doc_ref.set(veri)
                 print(f"✅ Eklendi: {entry.title} ({dil} - {kategori})")
 
