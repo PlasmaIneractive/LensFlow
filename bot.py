@@ -13,15 +13,29 @@ db = firestore.client()
 
 def gorsel_bul(url):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers, timeout=3)
+        # Google botu gibi davranarak siteleri kandırıyoruz
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        }
+        response = requests.get(url, headers=headers, timeout=5)
         soup = BeautifulSoup(response.content, 'html.parser')
-        og_image = soup.find("meta", property="og:image")
-        if og_image and og_image.get("content"):
-            return og_image["content"]
-    except:
-        return None
-    return None
+        
+        # 1. Strateji: Meta etiketleri (En kaliteli görseller burada olur)
+        for meta in ["og:image", "twitter:image", "image"]:
+            img_tag = soup.find("meta", property=meta) or soup.find("meta", attrs={"name": meta})
+            if img_tag and img_tag.get("content"):
+                return img_tag["content"]
+        
+        # 2. Strateji: Sayfa içindeki ilk büyük resim
+        images = soup.find_all("img")
+        for img in images:
+            src = img.get("src")
+            if src and not src.startswith("data:") and len(src) > 30: # İkonları ve küçük resimleri atla
+                return src if src.startswith("http") else url.rsplit('/', 1)[0] + "/" + src
+
+    except Exception as e:
+        print(f"Görsel çekme hatası: {e}")
+    return "https://via.placeholder.com/600x400" # Eğer hiç bulunamazsa boş kalsın
 
 def haberleri_islet():
     kaynaklar = [
