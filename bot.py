@@ -2,7 +2,6 @@ import os
 import json
 import feedparser
 import requests
-from bs4 import BeautifulSoup
 from firebase_admin import credentials, initialize_app, firestore
 
 # Firebase Bağlantısı
@@ -11,36 +10,12 @@ cred = credentials.Certificate(service_account)
 initialize_app(cred)
 db = firestore.client()
 
-def orijinal_gorseli_cek(url):
-    """
-    Haberin orijinal sayfasına gider ve meta verilerinden yüksek kaliteli görseli alır.
-    """
-    try:
-        # İnsan gibi davranmak için gerçek tarayıcı başlıkları
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-            "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
-        # Yönlendirmeleri takip ederek asıl siteye ulaş
-        response = requests.get(url, headers=headers, timeout=12, allow_redirects=True)
-        
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # YÖNTEM: Sosyal medya için paylaşılan özel görseli (og:image) al
-            meta_image = soup.find("meta", property="og:image")
-            if meta_image and meta_image.get("content"):
-                return meta_image["content"]
-            
-            # YÖNTEM: Alternatif olarak makale içindeki ilk büyük resmi al
-            img = soup.find("img", src=True)
-            if img:
-                return img["src"]
-                
-    except Exception as e:
-        print(f"Görsel çekme hatası: {e}")
-        
-    return "https://via.placeholder.com/600x400"
+def fix_google_image(url):
+    # Google'ın verdiği o profil resmi linkini, orijinal görsel linkine zorla çevir
+    # Bu yöntem Google'ın gizli görsel servisinin parametresini kullanır
+    if "googleusercontent" in url or "google" in url:
+        return url.split("=")[0] + "=s0" # Kaliteyi en yükseğe çeker
+    return url
 
 def haberleri_islet():
     kaynaklar = [("tr", "TR"), ("en", "US"), ("de", "DE"), ("fr", "FR"), ("es", "ES"), ("it", "IT")]
@@ -50,13 +25,21 @@ def haberleri_islet():
         feed = feedparser.parse(url)
         
         for entry in feed.entries:
-            # Firebase ID güvenliği
             temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
             doc_ref = db.collection('haberler').document(temiz_baslik)
             
-            # Hatalı/Eski verileri temizlemek için burayı if kontrolsüz yazdıralım
-            # Böylece her çalışma temiz veriyle güncellenir
-            gorsel = orijinal_gorseli_cek(entry.link)
+            # Google'ın RSS içindeki görseli veya yönlendirmesi
+            # feedparser entry'sinden resim linkini ayıkla
+            gorsel = "https://via.placeholder.com/600x400"
+            if hasattr(entry, 'media_content'):
+                gorsel = entry.media_content[0]['url']
+            elif hasattr(entry, 'links'):
+                for link in entry.links:
+                    if 'image' in link.get('type', ''):
+                        gorsel = link['href']
+            
+            # Görseli 's0' kalitesine zorla (Google Proxy'sini aşmak için)
+            gorsel = fix_google_image(gorsel)
             
             veri = {
                 "baslik": entry.title,
@@ -69,7 +52,7 @@ def haberleri_islet():
             }
             
             doc_ref.set(veri)
-            print(f"✅ İşlendi: {entry.title[:30]} | Görsel: {gorsel[:30]}...")
+            print(f"✅ Yazıldı: {entry.title[:30]}")
 
 if __name__ == "__main__":
     haberleri_islet()
