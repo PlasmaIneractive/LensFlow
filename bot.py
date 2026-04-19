@@ -33,7 +33,9 @@ def haberleri_islet():
         feed = feedparser.parse(url)
         
         for entry in feed.entries:
-            doc_ref = db.collection('haberler').document(entry.title)
+            # Başlığı temizle: Slash ve diğer geçersiz karakterleri '-' ile değiştir
+temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
+doc_ref = db.collection('haberler').document(temiz_baslik)
             
             # ... bot.py içindeki haberleri_islet fonksiyonunun içindeki veri bloğunu şöyle güncelle:
 
