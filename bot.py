@@ -11,30 +11,30 @@ cred = credentials.Certificate(service_account)
 initialize_app(cred)
 db = firestore.client()
 
-def orijinal_sayfadan_gorsel_cek(url):
+def orijinal_gorseli_cek(url):
     try:
-        # Gerçek bir tarayıcı taklidi (User-Agent çok önemli)
+        # İnsan taklidi yapıyoruz
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            "Referer": "https://www.google.com/"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         }
+        # Yönlendirmeleri takip et (Google'dan çıkıp asıl siteye git)
         response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+        
+        # Orijinal haber sitesinin HTML'ini çek
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # 1. Öncelik: Og:image (Haber sitelerinin paylaşılan görsel meta verisi)
+        # En kaliteli görseli bul (og:image en garanti yoldur)
         og_img = soup.find("meta", property="og:image")
         if og_img and og_img.get("content"):
             return og_img["content"]
             
-        # 2. Öncelik: Makalenin içindeki ilk büyük resim (Haber gövdesi)
-        # Genelde haber resimleri article etiketi içindedir
-        article = soup.find('article') or soup.find('main') or soup
-        img = article.find('img', src=True)
+        # Eğer og:image yoksa sayfa içindeki ilk büyük resmi ara
+        img = soup.find("img", src=True)
         if img:
-            return img['src']
+            return img["src"]
             
     except Exception as e:
-        print(f"Hata oluştu: {e}")
+        print(f"Hata: {e}")
     return "https://via.placeholder.com/600x400"
 
 def haberleri_islet():
@@ -44,24 +44,28 @@ def haberleri_islet():
         url = f"https://news.google.com/rss?hl={dil}&gl={ulke}&ceid={ulke}:{dil}"
         feed = feedparser.parse(url)
         
-        for entry in feed.entries[:5]: # Her dilden ilk 5 haber (test için)
-            temiz_baslik = entry.title.replace("/", "-").replace(".", "-")
+        for entry in feed.entries:
+            # Firebase ID'si için temizleme
+            temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
             doc_ref = db.collection('haberler').document(temiz_baslik)
             
+            # Haber zaten varsa atla (Görsellerin güncellenmemesi için temizlik yapıp çalıştırmalısın)
             if not doc_ref.get().exists:
-                # Orijinal içeriğe git ve görseli çek
-                gercek_gorsel = orijinal_sayfadan_gorsel_cek(entry.link)
+                # Orijinal linke gidip görseli çek
+                gorsel = orijinal_gorseli_cek(entry.link)
                 
                 veri = {
                     "baslik": entry.title,
                     "link": entry.link,
-                    "gorsel": gercek_gorsel,
+                    "gorsel": gorsel,
                     "tarih": firestore.SERVER_TIMESTAMP,
                     "dil": dil,
-                    "kategori": "Gündem"
+                    "kategori": "Gündem",
+                    "kaynak": entry.source.get('title', 'Google News') if 'source' in entry else 'Google News'
                 }
+                
                 doc_ref.set(veri)
-                print(f"✅ Çekildi: {entry.title[:30]}... -> {gercek_gorsel[:30]}...")
+                print(f"✅ Başarılı: {entry.title[:30]}... -> {gorsel[:30]}...")
 
 if __name__ == "__main__":
     haberleri_islet()
