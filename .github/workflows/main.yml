@@ -4,6 +4,10 @@ on:
     - cron: '*/30 * * * *'
   push:
     branches: [ master ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Uyarıyı çözen satır
+
 jobs:
   build:
     runs-on: ubuntu-latest
