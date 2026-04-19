@@ -4,7 +4,7 @@ on:
     - cron: '*/30 * * * *'
   push:
     branches: [ master ]
-
+  workflow_dispatch:  # <--- Bu satırı ekliyoruz (Elle çalıştırma butonu için)
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Uyarıyı çözen satır
 
