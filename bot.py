@@ -35,18 +35,27 @@ def haberleri_islet():
         for entry in feed.entries:
             doc_ref = db.collection('haberler').document(entry.title)
             
+            # ... bot.py içindeki haberleri_islet fonksiyonunun içindeki veri bloğunu şöyle güncelle:
+
             if not doc_ref.get().exists:
                 gorsel = gorsel_bul(entry.link)
+                
+                # URL üzerinden kategoriyi tahmin etme (Default: 'Gündem')
+                kategori = "Gündem"
+                if "/topic/" in url:
+                    kategori = url.split("/topic/")[1].split("?")[0]
+                
                 veri = {
                     "baslik": entry.title,
                     "link": entry.link,
                     "gorsel": gorsel if gorsel else "https://via.placeholder.com/600x400",
                     "tarih": firestore.SERVER_TIMESTAMP,
                     "dil": dil,
-                    "kaynak": entry.source.get('title', 'Google News') if 'source' in entry else 'Google News'
+                    "kategori": kategori,  # <--- Yeni alanımız
+                    "kaynak": entry.source.get('title', 'Google News')
                 }
                 doc_ref.set(veri)
-                print(f"✅ Eklendi: {entry.title} ({dil})")
+                print(f"✅ Eklendi: {entry.title} ({dil} - {kategori})")
 
 if __name__ == "__main__":
     haberleri_islet()
