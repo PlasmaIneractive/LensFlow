@@ -2,7 +2,6 @@ import os
 import json
 import feedparser
 import requests
-from bs4 import BeautifulSoup
 from firebase_admin import credentials, initialize_app, firestore
 
 # Firebase Bağlantısı
@@ -10,34 +9,6 @@ service_account = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
 cred = credentials.Certificate(service_account)
 initialize_app(cred)
 db = firestore.client()
-
-def gorsel_bul(url):
-    try:
-        # Daha gerçekçi bir browser profili
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Referer': 'https://www.google.com/'
-        }
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        # Eğer site bizi engellediyse veya farklı bir içerik verdiyse
-        if response.status_code != 200:
-            return None
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        # Site içindeki tüm resimleri analiz et, sadece 200x200'den büyükleri al
-        imgs = soup.find_all('img')
-        for img in imgs:
-            src = img.get('src')
-            # Reklam/Logo/İkon filtreleme (küçük resimleri geç)
-            if src and len(src) > 50 and ('news' in src or 'photo' in src or 'image' in src):
-                return src if src.startswith('http') else url.rsplit('/', 1)[0] + '/' + src
-                
-    except Exception as e:
-        print(f"Hata: {e}")
-    return "https://via.placeholder.com/600x400"
 
 def haberleri_islet():
     kaynaklar = [
@@ -49,25 +20,39 @@ def haberleri_islet():
         feed = feedparser.parse(url)
         
         for entry in feed.entries:
+            # 1. Adım: Başlığı temizle (Firebase hatasını önlemek için)
             temiz_baslik = entry.title.replace("/", "-").replace(".", "-").replace("[", "").replace("]", "")
             doc_ref = db.collection('haberler').document(temiz_baslik)
             
+            # 2. Adım: Haber zaten var mı kontrol et
             if not doc_ref.get().exists:
-                gorsel = gorsel_bul(entry.link)
                 
-                # Kategori sorgusunu iptal ettik, hepsi sabit "Gündem"
+                # 3. Adım: Görseli RSS içinden al (En garanti yöntem)
+                gorsel = "https://via.placeholder.com/600x400" # Varsayılan
+                
+                # Google News RSS'inde görsel genelde 'media_content' içinde olur
+                if hasattr(entry, 'media_content'):
+                    gorsel = entry.media_content[0]['url']
+                elif hasattr(entry, 'links'):
+                    for link in entry.links:
+                        if 'image' in link.get('type', ''):
+                            gorsel = link['href']
+                            break
+                
+                # 4. Adım: Veriyi hazırla
                 veri = {
                     "baslik": entry.title,
                     "link": entry.link,
-                    "gorsel": gorsel if gorsel else "https://via.placeholder.com/600x400",
+                    "gorsel": gorsel,
                     "tarih": firestore.SERVER_TIMESTAMP,
                     "dil": dil,
                     "kategori": "Gündem", 
                     "kaynak": entry.source.get('title', 'Google News') if 'source' in entry else 'Google News'
                 }
                 
+                # 5. Adım: Firebase'e yaz
                 doc_ref.set(veri)
-                print(f"✅ Eklendi: {entry.title} ({dil})")
+                print(f"✅ Eklendi: {entry.title} ({dil}) - Görsel: {gorsel[:30]}...")
 
 if __name__ == "__main__":
     haberleri_islet()
