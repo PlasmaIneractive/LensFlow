@@ -13,29 +13,31 @@ db = firestore.client()
 
 def gorsel_bul(url):
     try:
-        # Google botu gibi davranarak siteleri kandırıyoruz
+        # Daha gerçekçi bir browser profili
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'https://www.google.com/'
         }
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        # Eğer site bizi engellediyse veya farklı bir içerik verdiyse
+        if response.status_code != 200:
+            return None
+
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # 1. Strateji: Meta etiketleri (En kaliteli görseller burada olur)
-        for meta in ["og:image", "twitter:image", "image"]:
-            img_tag = soup.find("meta", property=meta) or soup.find("meta", attrs={"name": meta})
-            if img_tag and img_tag.get("content"):
-                return img_tag["content"]
-        
-        # 2. Strateji: Sayfa içindeki ilk büyük resim
-        images = soup.find_all("img")
-        for img in images:
-            src = img.get("src")
-            if src and not src.startswith("data:") and len(src) > 30: # İkonları ve küçük resimleri atla
-                return src if src.startswith("http") else url.rsplit('/', 1)[0] + "/" + src
-
+        # Site içindeki tüm resimleri analiz et, sadece 200x200'den büyükleri al
+        imgs = soup.find_all('img')
+        for img in imgs:
+            src = img.get('src')
+            # Reklam/Logo/İkon filtreleme (küçük resimleri geç)
+            if src and len(src) > 50 and ('news' in src or 'photo' in src or 'image' in src):
+                return src if src.startswith('http') else url.rsplit('/', 1)[0] + '/' + src
+                
     except Exception as e:
-        print(f"Görsel çekme hatası: {e}")
-    return "https://via.placeholder.com/600x400" # Eğer hiç bulunamazsa boş kalsın
+        print(f"Hata: {e}")
+    return "https://via.placeholder.com/600x400"
 
 def haberleri_islet():
     kaynaklar = [
