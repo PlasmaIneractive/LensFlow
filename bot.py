@@ -1,123 +1,57 @@
-"https://www.hurriyet.com.tr/rss/anasayfa"
-"https://www.hurriyet.com.tr/rss/gundem"
-"https://www.hurriyet.com.tr/rss/ekonomi"
-"https://www.hurriyet.com.tr/rss/spor"
-"https://www.hurriyet.com.tr/rss/dunya"
-"https://www.hurriyet.com.tr/rss/teknoloji"
-"https://www.hurriyet.com.tr/rss/magazin"
-"https://www.hurriyet.com.tr/rss/saglik"
-"https://www.sabah.com.tr/rss/anasayfa.xml"
-"https://www.sabah.com.tr/rss/sondakika.xml"
-"https://www.sabah.com.tr/rss/gundem.xml"
-"https://www.sabah.com.tr/rss/ekonomi.xml"
-"https://www.sabah.com.tr/rss/spor.xml"
-"https://www.sabah.com.tr/rss/teknoloji.xml"
-"https://www.sabah.com.tr/rss/dunya.xml"
-"https://www.sabah.com.tr/rss/yasam.xml"
-"https://www.sabah.com.tr/rss/saglik.xml"
-"https://www.sabah.com.tr/rss/otomobil.xml"
-"https://www.sabah.com.tr/rss/turizm.xml"
-"https://www.sabah.com.tr/rss/kultur-sanat.xml"
-"https://www.sabah.com.tr/rss/galatasaray.xml"
-"https://www.sabah.com.tr/rss/fenerbahce.xml"
-"https://www.sabah.com.tr/rss/besiktas.xml"
-"https://www.sabah.com.tr/rss/trabzonspor.xml"
-"https://www.milliyet.com.tr/rss/rssNew/gundemRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/SonDakikaRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/ekonomiRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/magazinRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/teknolojiRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/dunyaRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/siyasetRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/saglikRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/otomobilRss.xml"
-"https://www.milliyet.com.tr/rss/rssNew/egitimRss.xml"
-"https://www.cumhuriyet.com.tr/rss/son_dakika.xml"
-"https://cumhuriyet.com.tr/rss/1.xml"
-"https://www.star.com.tr/rss/rss.asp"
-"https://www.star.com.tr/rss/rss.asp?cid=124"
-"https://www.takvim.com.tr/rss/anasayfa.xml"
-"https://www.takvim.com.tr/rss/son24saat.xml"
-"https://www.takvim.com.tr/rss/guncel.xml"
-"https://www.takvim.com.tr/rss/ekonomi.xml"
-"https://www.takvim.com.tr/rss/spor.xml"
-"https://www.takvim.com.tr/rss/yasam.xml"
-"https://www.takvim.com.tr/rss/teknoloji.xml"
-"https://www.takvim.com.tr/rss/otomobil.xml"
-"https://www.takvim.com.tr/rss/video.xml"
-"https://www.turkiyegazetesi.com.tr/rss/rss.xml"
-"https://www.yeniasir.com.tr/rss/anasayfa.xml"
-"https://www.yenisafak.com/Rss"
-"https://www.yenisafak.com/rss?xml=manset"
-"https://www.yenisafak.com/rss?xml=gundem"
-"https://www.yenisafak.com/rss?xml=ekonomi"
-"https://www.yenisafak.com/rss?xml=spor"
-"https://www.yenisafak.com/rss?xml=dunya"
-"https://www.yenisafak.com/rss?xml=teknoloji"
-"https://www.yenisafak.com/rss?xml=hayat"
-"https://www.yenisafak.com/rss?xml=yazarlar"
-"https://www.yeniakit.com.tr/rss/haber"
-"https://www.yeniakit.com.tr/rss/haber/gundem"
-"https://www.yeniakit.com.tr/rss/haber/ekonomi"
-"https://www.yeniakit.com.tr/rss/haber/siyaset"
-"https://www.yeniakit.com.tr/rss/haber/dunya"
-"https://www.yeniakit.com.tr/rss/haber/spor"
-"https://www.yeniakit.com.tr/rss/haber/teknoloji"
-"https://www.yeniakit.com.tr/rss/haber/yasam"
-"https://www.yeniakit.com.tr/rss/haber/saglik"
-"https://www.yeniakit.com.tr/rss/haber/egitim"
-"https://www.yeniakit.com.tr/rss/haber/kultur-sanat"
-"https://www.dunya.com/rss"
-"https://www.birgun.net/feed"
-"https://www.evrensel.net/rss/haber.xml"
-"https://www.ntv.com.tr/gundem.rss"
-"https://www.ntv.com.tr/turkiye.rss"
-"https://www.ntv.com.tr/dunya.rss"
-"https://www.ntv.com.tr/ekonomi.rss"
-"https://www.ntv.com.tr/spor.rss"
-"https://www.ntv.com.tr/teknoloji.rss"
-"https://www.ntv.com.tr/yasam.rss"
-"https://www.ntv.com.tr/saglik.rss"
-"https://www.ntv.com.tr/otomobil.rss"
-"https://www.ntv.com.tr/egitim.rss"
-"https://www.ntv.com.tr/sanat.rss"
-"https://www.ntv.com.tr/seyahat.rss"
-"https://www.cnnturk.com/feed/rss/turkiye/news"
-"https://www.ahaber.com.tr/rss/anasayfa.xml"
-"https://www.ahaber.com.tr/rss/gundem.xml"
-"https://www.ahaber.com.tr/rss/ekonomi.xml"
-"https://www.ahaber.com.tr/rss/spor.xml"
-"https://www.ahaber.com.tr/rss/dunya.xml"
-"https://www.ahaber.com.tr/rss/yasam.xml"
-"https://www.ahaber.com.tr/rss/teknoloji.xml"
-"https://www.ahaber.com.tr/rss/magazin.xml"
-"https://www.ahaber.com.tr/rss/son24saat.xml"
-"https://www.ahaber.com.tr/rss/galatasaray.xml"
-"https://www.ahaber.com.tr/rss/fenerbahce.xml"
-"https://www.ahaber.com.tr/rss/besiktas.xml"
-"https://www.ahaber.com.tr/rss/trabzonspor.xml"
-"https://www.haberturk.com/rss"
-"https://haber.sol.org.tr/rss.xml"
-"https://www.aa.com.tr/tr/rss/default?cat=guncel"
-"https://www.aa.com.tr/tr/rss/default?cat=ekonomi"
-"https://www.aa.com.tr/tr/rss/default?cat=spor"
-"https://www.aa.com.tr/tr/rss/default?cat=dunya"
-"https://rss.haberler.com/rss.asp"
-"https://www.donanimhaber.com/rss/tum/"
-"https://donanimgunlugu.com/feed"
-"https://www.chip.com.tr/rss"
-"https://hwp.com.tr/feed"
-"https://www.log.com.tr/feed/"
-"https://www.megabayt.com/rss/news"
-"https://www.megabayt.com/rss/categorynews/bilgisayar"
-"https://www.megabayt.com/rss/categorynews/donanim"
-"https://www.megabayt.com/rss/categorynews/oyun"
-"https://www.megabayt.com/rss/categorynews/bilim-ve-teknoloji"
-"https://www.cozumpark.com/feed/"
-"https://www.indir.com/haber/feed/"
-"https://www.beyazperde.com/rss/haberler.xml"
-"https://tr.ign.com/feed.xml"
-"https://bigumigu.com/feed/"
-"https://foundern.com/feed/"
-"https://www.campaigntr.com/feed/"
-"https://listelist.com/feed/"
+import os
+import json
+import asyncio
+import feedparser
+import aiohttp
+from firebase_admin import credentials, initialize_app, firestore
+
+# Firebase Bağlantısı
+service_account = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
+cred = credentials.Certificate(service_account)
+initialize_app(cred)
+db = firestore.client()
+
+# Modüler Kaynak Listesi
+RSS_KAYNAKLARI = [
+    {"url": "https://www.hurriyet.com.tr/rss/anasayfa", "kategori": "Gündem", "dil": "tr"},
+    {"url": "https://www.sozcu.com.tr/rss/haberler.xml", "kategori": "Gündem", "dil": "tr"},
+    # Buraya yüzlerce kaynak ekleyebilirsin
+]
+
+async def haber_isleyici(session, kaynak):
+    try:
+        async with session.get(kaynak['url'], timeout=10) as response:
+            content = await response.text()
+            feed = feedparser.parse(content)
+            
+            for entry in feed.entries[:5]:
+                temiz_baslik = entry.title.replace("/", "-")
+                doc_ref = db.collection('haberler').document(temiz_baslik)
+                
+                gorsel = "https://via.placeholder.com/600x400"
+                if hasattr(entry, 'enclosures') and entry.enclosures:
+                    gorsel = entry.enclosures[0]['url']
+                elif hasattr(entry, 'media_content'):
+                    gorsel = entry.media_content[0]['url']
+                
+                veri = {
+                    "baslik": entry.title,
+                    "link": entry.link,
+                    "gorsel": gorsel,
+                    "tarih": firestore.SERVER_TIMESTAMP,
+                    "dil": kaynak['dil'],
+                    "kategori": kaynak['kategori'],
+                    "kaynak": entry.source.get('title', 'Haber') if hasattr(entry, 'source') else 'Haber'
+                }
+                doc_ref.set(veri)
+                print(f"✅ Yazıldı: {veri['kaynak']} - {entry.title[:30]}")
+    except Exception as e:
+        print(f"Hata ({kaynak['url']}): {e}")
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        tasks = [haber_isleyici(session, k) for k in RSS_KAYNAKLARI]
+        await asyncio.gather(*tasks)
+
+if __name__ == "__main__":
+    asyncio.run(main())
