@@ -2,8 +2,8 @@ name: Haber Botu Otomasyonu
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Her saatin 0. dakikasında çalış
-  workflow_dispatch:      # İstediğin zaman manuel çalıştırmak için
+    - cron: '0 */6 * * *'  # Artık 6 saatte bir çalışır
+  workflow_dispatch:       # Manuel çalıştırmak için
 
 jobs:
   build:
