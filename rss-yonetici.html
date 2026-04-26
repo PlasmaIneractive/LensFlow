@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSS Kaynak Yöneticisi</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 2rem 1rem; }
+    .page { max-width: 680px; margin: 0 auto; }
+    h1 { font-size: 18px; font-weight: 600; color: #f8fafc; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    h1 span { font-size: 12px; font-weight: 400; color: #64748b; background: #1e2433; padding: 3px 10px; border-radius: 100px; }
+    .card { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 12px; padding: 1.25rem; margin-bottom: 14px; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+    input[type="text"], select {
+      width: 100%; padding: 9px 12px; background: #0f1117; border: 1px solid #2d3748;
+      border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, select:focus { border-color: #3b82f6; }
+    input::placeholder { color: #475569; }
+    button {
+      padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      cursor: pointer; border: 1px solid #2d3748; background: #1e2433; color: #e2e8f0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button:hover { background: #263044; border-color: #3d4f6b; }
+    button.primary { background: #1d4ed8; border-color: #2563eb; color: #fff; }
+    button.primary:hover { background: #2563eb; }
+    button.danger:hover { background: #3f1515; border-color: #7f1d1d; color: #fca5a5; }
+    button.ghost { background: none; border: none; padding: 5px 8px; font-size: 13px; color: #64748b; }
+    button.ghost:hover { color: #e2e8f0; background: #1e2433; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; color: #94a3b8; }
+    .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+    .badge-green { background: #14532d; color: #86efac; }
+    .badge-gray  { background: #1e2433; color: #64748b; }
+    .badge-blue  { background: #1e3a5f; color: #93c5fd; }
+    .badge-red   { background: #3f1515; color: #fca5a5; }
+    .status { font-size: 13px; padding: 9px 12px; border-radius: 8px; margin-top: 8px; display: none; }
+    .status.show { display: block; }
+    .status.success { background: #14532d; color: #86efac; }
+    .status.error   { background: #3f1515; color: #fca5a5; }
+    .status.info    { background: #1e3a5f; color: #93c5fd; }
+    .source-item { padding: 12px 0; border-bottom: 1px solid #1e2433; }
+    .source-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .source-view { display: flex; align-items: flex-start; gap: 10px; }
+    .source-info { flex: 1; min-width: 0; }
+    .source-name { font-size: 14px; font-weight: 500; color: #f1f5f9; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .source-url { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+    .source-meta { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+    .meta-tag { font-size: 11px; padding: 2px 7px; border-radius: 100px; background: #1e2433; color: #94a3b8; }
+    .source-edit { display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2433; }
+    .source-edit.active { display: flex; }
+    .check-result { display: none; margin-top: 10px; }
+    .check-result.show { display: block; }
+    .add-form { display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2433; }
+    .add-form.show { display: flex; }
+    .empty { text-align: center; padding: 2.5rem 1rem; color: #475569; font-size: 14px; }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #2d3748; border-top-color: #94a3b8; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .filter-row input { flex: 1; }
+    .filter-row select { width: 140px; flex-shrink: 0; }
+    .count-tag { font-size: 12px; background: #1e2433; color: #64748b; padding: 2px 8px; border-radius: 100px; margin-left: 6px; }
+    .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <h1>RSS Kaynak Yöneticisi <span id="conn-label">bağlı değil</span></h1>
+
+  <!-- Sorgula & Ekle -->
+  <div class="card">
+    <div class="section-label">Kaynak sorgula ve ekle</div>
+    <div class="row">
+      <input type="text" id="check-url" placeholder="https://example.com/feed.xml" />
+      <button class="primary" onclick="checkUrl()">Sorgula</button>
+    </div>
+    <div class="check-result" id="check-result">
+      <div id="check-badge"></div>
+      <div class="add-form" id="add-form">
+        <div class="field">
+          <label>isim</label>
+          <input type="text" id="new-isim" placeholder="Kaynak adı" />
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>kategori</label>
+            <select id="new-kategori">
+              <option>Teknoloji</option><option>Gündem</option><option>Ekonomi</option>
+              <option>Spor</option><option>Sağlık</option><option>Bilim</option>
+              <option>Kültür</option><option>Dünya</option><option>Diğer</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>dil</label>
+            <select id="new-dil">
+              <option value="tr">tr</option><option value="en">en</option>
+              <option value="fr">fr</option><option value="de">de</option>
+              <option value="ar">ar</option><option value="es">es</option>
+              <option value="ru">ru</option><option value="other">diğer</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>aktif</label>
+          <select id="new-aktif">
+            <option value="true">true</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:4px;">
+          <button class="primary" onclick="addSource()">Kaydet →</button>
+          <button onclick="cancelAdd()">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kayıtlı Kaynaklar -->
+  <div class="card">
+    <div class="top-row">
+      <span class="section-label" style="margin:0;">Kayıtlı kaynaklar <span class="count-tag" id="src-count">0</span></span>
+      <button onclick="loadSources()" style="font-size:12px;">↻ yenile</button>
+    </div>
+    <div class="filter-row">
+      <input type="text" id="search" placeholder="kaynak ara..." oninput="filterSources()" />
+      <select id="filter-kat" onchange="filterSources()">
+        <option value="">tüm kategoriler</option>
+        <option>Teknoloji</option><option>Gündem</option><option>Ekonomi</option>
+        <option>Spor</option><option>Sağlık</option><option>Bilim</option>
+        <option>Kültür</option><option>Dünya</option><option>Diğer</option>
+      </select>
+      <select id="filter-aktif" onchange="filterSources()">
+        <option value="">tümü</option>
+        <option value="true">aktif</option>
+        <option value="false">pasif</option>
+      </select>
+    </div>
+    <div id="sources-list"><div class="empty">Yükleniyor...</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDIWhUUEmp1of0j8sjQxsDTa4xf8JQBEmo",
+    authDomain: "lensflow-67986.firebaseapp.com",
+    projectId: "lensflow-67986",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const COL = "kaynaklar";
+
+  let allSources = [];
+
+  document.getElementById('conn-label').textContent = 'bağlandı ✓';
+  document.getElementById('conn-label').style.color = '#86efac';
+
+  window.loadSources = async function() {
+    document.getElementById('sources-list').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
+    try {
+      const snap = await getDocs(collection(db, COL));
+      allSources = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      document.getElementById('src-count').textContent = allSources.length;
+      renderSources(allSources);
+    } catch(e) {
+      document.getElementById('sources-list').innerHTML = '<div class="empty" style="color:#fca5a5;">Hata: '+e.message+'</div>';
+    }
+  };
+
+  function renderSources(list) {
+    if (!list.length) { document.getElementById('sources-list').innerHTML = '<div class="empty">Kaynak bulunamadı.</div>'; return; }
+    document.getElementById('sources-list').innerHTML = list.map(s => {
+      const aktif = s.aktif === true || s.aktif === 'true';
+      return `
+      <div class="source-item" id="item-${s.id}">
+        <div class="source-view">
+          <div class="source-info">
+            <div class="source-name">
+              ${esc(s.isim||'(isimsiz)')}
+              <span class="badge ${aktif?'badge-green':'badge-gray'}">${aktif?'aktif':'pasif'}</span>
+            </div>
+            <div class="source-url">${esc(s.url||'')}</div>
+            <div class="source-meta">
+              ${s.kategori?`<span class="meta-tag">${esc(s.kategori)}</span>`:''}
+              ${s.dil?`<span class="meta-tag">${esc(s.dil)}</span>`:''}
+            </div>
+          </div>
+          <div class="row">
+            <button class="ghost" onclick="startEdit('${s.id}')" title="Düzenle">✎</button>
+            <button class="ghost danger" onclick="deleteSrc('${s.id}')" title="Sil">✕</button>
+          </div>
+        </div>
+        <div class="source-edit" id="edit-${s.id}">
+          <div class="field"><label>isim</label><input type="text" id="e-isim-${s.id}" value="${escA(s.isim||'')}" /></div>
+          <div class="field"><label>url</label><input type="text" id="e-url-${s.id}" value="${escA(s.url||'')}" /></div>
+          <div class="grid2">
+            <div class="field"><label>kategori</label>
+              <select id="e-kat-${s.id}">
+                ${['Teknoloji','Gündem','Ekonomi','Spor','Sağlık','Bilim','Kültür','Dünya','Diğer'].map(k=>`<option${s.kategori===k?' selected':''}>${k}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field"><label>dil</label>
+              <select id="e-dil-${s.id}">
+                ${['tr','en','fr','de','ar','es','ru','other'].map(d=>`<option${s.dil===d?' selected':''}>${d}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>aktif</label>
+            <select id="e-aktif-${s.id}">
+              <option value="true"${aktif?' selected':''}>true</option>
+              <option value="false"${!aktif?' selected':''}>false</option>
+            </select>
+          </div>
+          <div class="row">
+            <button class="primary" onclick="saveEdit('${s.id}')">Kaydet</button>
+            <button onclick="cancelEdit('${s.id}')">İptal</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escA(s) { return String(s).replace(/"/g,'&quot;'); }
+
+  window.filterSources = function() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const kat = document.getElementById('filter-kat').value;
+    const aktifF = document.getElementById('filter-aktif').value;
+    renderSources(allSources.filter(s => {
+      const mQ = (s.isim||'').toLowerCase().includes(q)||(s.url||'').toLowerCase().includes(q);
+      const mK = !kat || s.kategori===kat;
+      const mA = !aktifF || String(s.aktif)===aktifF;
+      return mQ&&mK&&mA;
+    }));
+  };
+
+  window.startEdit = id => document.getElementById('edit-'+id).classList.add('active');
+  window.cancelEdit = id => document.getElementById('edit-'+id).classList.remove('active');
+
+  window.saveEdit = async function(id) {
+    const isim = document.getElementById('e-isim-'+id).value.trim();
+    const url = document.getElementById('e-url-'+id).value.trim();
+    const kategori = document.getElementById('e-kat-'+id).value;
+    const dil = document.getElementById('e-dil-'+id).value;
+    const aktif = document.getElementById('e-aktif-'+id).value === 'true';
+    if (!isim||!url) { alert('İsim ve URL boş bırakılamaz.'); return; }
+    try {
+      await updateDoc(doc(db, COL, id), { isim, url, kategori, dil, aktif });
+      const s = allSources.find(x=>x.id===id);
+      if(s) Object.assign(s,{isim,url,kategori,dil,aktif});
+      cancelEdit(id); filterSources();
+    } catch(e) { alert('Hata: '+e.message); }
+  };
+
+  window.deleteSrc = async function(id) {
+    if (!confirm('Bu kaynağı silmek istediğinize emin misiniz?')) return;
+    try {
+      await deleteDoc(doc(db, COL, id));
+      allSources = allSources.filter(s=>s.id!==id);
+      document.getElementById('src-count').textContent = allSources.length;
+      filterSources();
+    } catch(e) { alert('Hata: '+e.message); }
+  };
+
+  window.checkUrl = function() {
+    const url = document.getElementById('check-url').value.trim();
+    const res = document.getElementById('check-result');
+    const badge = document.getElementById('check-badge');
+    const form = document.getElementById('add-form');
+    res.className = 'check-result show';
+    form.className = 'add-form';
+    if (!url) { badge.innerHTML = '<span class="badge badge-red">✕ URL boş olamaz</span>'; return; }
+    const found = allSources.find(s=>(s.url||'').toLowerCase()===url.toLowerCase());
+    if (found) {
+      badge.innerHTML = `<span class="badge badge-green">✓ Zaten kayıtlı</span> <span style="font-size:13px;color:#64748b;margin-left:6px;">${esc(found.isim||'(isimsiz)')}</span>`;
+    } else {
+      badge.innerHTML = '<span class="badge badge-blue">+ Kayıtlı değil — bilgileri doldurun</span>';
+      form.className = 'add-form show';
+      document.getElementById('new-isim').value = '';
+      setTimeout(()=>document.getElementById('new-isim').focus(),50);
+    }
+  };
+
+  window.cancelAdd = function() {
+    document.getElementById('check-result').className = 'check-result';
+    document.getElementById('check-url').value = '';
+  };
+
+  window.addSource = async function() {
+    const url = document.getElementById('check-url').value.trim();
+    const isim = document.getElementById('new-isim').value.trim();
+    const kategori = document.getElementById('new-kategori').value;
+    const dil = document.getElementById('new-dil').value;
+    const aktif = document.getElementById('new-aktif').value === 'true';
+    if (!isim) { document.getElementById('new-isim').focus(); return; }
+    try {
+      const data = { url, isim, kategori, dil, aktif, createdAt: serverTimestamp() };
+      const ref = await addDoc(collection(db, COL), data);
+      allSources.push({ id: ref.id, ...data });
+      document.getElementById('src-count').textContent = allSources.length;
+      cancelAdd(); renderSources(allSources);
+    } catch(e) { alert('Hata: '+e.message); }
+  };
+
+  loadSources();
+</script>
+</body>
+</html>
