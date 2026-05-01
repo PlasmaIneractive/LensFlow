@@ -17,11 +17,49 @@ else:
 initialize_app(cred)
 db = firestore.client()
 
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+
+KATEGORILER = ['Son Dakika', 'Siyaset', 'Ekonomi', 'Teknoloji', 'Kültür Sanat', 'Bilim', 'Spor']
+
 # Tarayıcı imzaları
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
 ]
+
+async def kategori_belirle(session, baslik):
+    """Anthropic API ile haber başlığına göre kategori belirle"""
+    if not ANTHROPIC_API_KEY:
+        return 'Genel'
+    try:
+        payload = {
+            "model": "claude-haiku-4-5-20251001",
+            "max_tokens": 20,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"Bu haber başlığı hangi kategoriye giriyor: Son Dakika, Siyaset, Ekonomi, Teknoloji, Kültür Sanat, Bilim, Spor?\nSadece kategori adını yaz, başka hiçbir şey yazma.\nHaber başlığı: {baslik}"
+                }
+            ]
+        }
+        async with session.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json'
+            },
+            json=payload,
+            timeout=15
+        ) as r:
+            if r.status == 200:
+                data = await r.json()
+                kategori = data['content'][0]['text'].strip()
+                if kategori in KATEGORILER:
+                    return kategori
+    except Exception as e:
+        print(f"⚠️ Kategori belirlenemedi: {e}")
+    return 'Genel'
 
 async def og_image_cek(session, link, headers):
     """Haber sayfasından og:image meta etiketini çek"""
@@ -29,7 +67,6 @@ async def og_image_cek(session, link, headers):
         async with session.get(link, headers=headers, timeout=10) as r:
             if r.status == 200:
                 html = await r.text()
-                # og:image ara
                 match = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html)
                 if not match:
                     match = re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', html)
@@ -86,13 +123,17 @@ async def haber_isleyici(session, kaynak):
                 else:
                     print(f"⚠️ Görsel bulunamadı: {baslik[:40]}")
 
+                # Anthropic API ile kategori belirle
+                kategori = await kategori_belirle(session, baslik)
+                print(f"🏷️ Kategori: {kategori} — {baslik[:40]}")
+
                 veri = {
                     "baslik": baslik,
                     "link": link,
                     "gorsel": gorsel,
                     "tarih": firestore.SERVER_TIMESTAMP,
                     "dil": kaynak.get('dil', 'en'),
-                    "kategori": kaynak.get('kategori', 'Global'),
+                    "kategori": kategori,
                     "kaynak": kaynak_ismi
                 }
 
