@@ -8,8 +8,8 @@ import re
 from firebase_admin import credentials, initialize_app, firestore
 
 # Firebase Bağlantısı
-if 'FIREBASE_SERVICE_ACCOUNT' in os.environ:
-    service_account = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
+if 'FIREBASE_CREDENTIALS_JSON' in os.environ:
+    service_account = json.loads(os.getenv('FIREBASE_CREDENTIALS_JSON'))
     cred = credentials.Certificate(service_account)
 else:
     cred = credentials.Certificate('serviceAccountKey.json')
