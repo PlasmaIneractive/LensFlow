@@ -2,8 +2,8 @@ name: Haber Botu Otomasyonu
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Artık 6 saatte bir çalışır
-  workflow_dispatch:       # Manuel çalıştırmak için
+    - cron: '0 */2 * * *'  # 2 saatte bir çalışır
+  workflow_dispatch:        # Manuel çalıştırmak için
 
 jobs:
   build:
@@ -15,8 +15,9 @@ jobs:
         with:
           python-version: '3.9'
       - name: Gerekli Kütüphaneleri Yükle
-        run: pip install feedparser aiohttp firebase-admin
+        run: pip install feedparser aiohttp firebase-admin anthropic
       - name: Botu Çalıştır
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python bot.py
